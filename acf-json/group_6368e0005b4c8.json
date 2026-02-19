@@ -1,0 +1,365 @@
+{
+    "key": "group_6368e0005b4c8",
+    "title": "แพทย์",
+    "fields": [
+        {
+            "key": "field_63bffab6ca55d",
+            "label": "เลขที่ ว.",
+            "name": "number",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "placeholder": "",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_6368e0000b7a1",
+            "label": "Specialty",
+            "name": "specialty",
+            "aria-label": "",
+            "type": "checkbox",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "กุมารเวชศาสตร์": "กุมารเวชศาสตร์",
+                "จิตเวชศาสตร์": "จิตเวชศาสตร์",
+                "จิตเวชเด็กและวัยรุ่น": "จิตเวชเด็กและวัยรุ่น",
+                "นิติเวชศาสตร์": "นิติเวชศาสตร์",
+                "ประสาทวิทยา": "ประสาทวิทยา",
+                "ประสาทศัลยแพทย์": "ประสาทศัลยแพทย์",
+                "แพทย์แผนจีน": "แพทย์แผนจีน",
+                "รังสีวิทยาวินิจฉัย": "รังสีวิทยาวินิจฉัย",
+                "รังสีวินิจฉัย": "รังสีวินิจฉัย",
+                "วิสัญญีแพทย์": "วิสัญญีแพทย์",
+                "ศัลยศาสตร์": "ศัลยศาสตร์",
+                "ศัลยศาสตร์ตกแต่ง": "ศัลยศาสตร์ตกแต่ง",
+                "ศัลยศาสตร์ยูโรวิทยา": "ศัลยศาสตร์ยูโรวิทยา",
+                "ศัลยศาสตร์ออร์โธปิดิกส์": "ศัลยศาสตร์ออร์โธปิดิกส์",
+                "จักษุวิทยา": "จักษุวิทยา",
+                "ประสาทศัลยศาสตร์ ": "ประสาทศัลยศาสตร์ ",
+                "รังสีวิทยาทั่วไป": "รังสีวิทยาทั่วไป",
+                "วิสัญญีวิทยา": "วิสัญญีวิทยา",
+                "เวชศาสตร์ป้องกัน แขนงสาธารณสุขศาสตร์": "เวชศาสตร์ป้องกัน แขนงสาธารณสุขศาสตร์",
+                "สูติศาสตร์และนรีเวชวิทยา": "สูติศาสตร์และนรีเวชวิทยา",
+                "กุมารศาสตร์": "กุมารศาสตร์",
+                "เวชศาสตร์ฉุกเฉิน": "เวชศาสตร์ฉุกเฉิน",
+                "โสต ศอ นาสิกวิทยา": "โสต ศอ นาสิกวิทยา",
+                "แผนกอายุรกรรม": "แผนกอายุรกรรม",
+                "เวชปฏิบัติทั่วไป": "เวชปฏิบัติทั่วไป",
+                "เวชศาสตร์ครอบครัว": "เวชศาสตร์ครอบครัว"
+            },
+            "default_value": [],
+            "return_format": "value",
+            "allow_custom": 0,
+            "layout": "vertical",
+            "toggle": 0,
+            "save_custom": 0,
+            "custom_choice_button_text": "Add new choice"
+        },
+        {
+            "key": "field_646cb2757fae3",
+            "label": "ศูนย์การแพทย์",
+            "name": "center_post",
+            "aria-label": "",
+            "type": "post_object",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "post_type": [
+                "centers"
+            ],
+            "post_status": [
+                "publish"
+            ],
+            "taxonomy": "",
+            "return_format": "id",
+            "multiple": 1,
+            "allow_null": 0,
+            "ui": 1
+        },
+        {
+            "key": "field_6368e0180b7a2",
+            "label": "Language",
+            "name": "language",
+            "aria-label": "",
+            "type": "checkbox",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "English": "English",
+                "Thai": "Thai",
+                "German": "German",
+                "Mandarin": "Mandarin"
+            },
+            "default_value": [],
+            "return_format": "value",
+            "allow_custom": 0,
+            "layout": "vertical",
+            "toggle": 0,
+            "save_custom": 0,
+            "custom_choice_button_text": "Add new choice"
+        },
+        {
+            "key": "field_6368e0300b7a3",
+            "label": "Education",
+            "name": "Education",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "maxlength": "",
+            "rows": "",
+            "placeholder": "",
+            "new_lines": "br"
+        },
+        {
+            "key": "field_6368e17535433",
+            "label": "Work Time",
+            "name": "work_time",
+            "aria-label": "",
+            "type": "radio",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "Part Time": "Part Time",
+                "Full Time": "Full Time"
+            },
+            "default_value": "",
+            "return_format": "value",
+            "allow_null": 0,
+            "other_choice": 0,
+            "layout": "vertical",
+            "save_other_choice": 0
+        },
+        {
+            "key": "field_63e318b8604d5",
+            "label": "เวลาทำงาน",
+            "name": "doctor_time",
+            "aria-label": "",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "layout": "table",
+            "pagination": 0,
+            "min": 0,
+            "max": 0,
+            "collapsed": "",
+            "button_label": "Add Row",
+            "rows_per_page": 20,
+            "sub_fields": [
+                {
+                    "key": "field_63e3191d604d6",
+                    "label": "จันทร์",
+                    "name": "monday",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_63e318b8604d5"
+                },
+                {
+                    "key": "field_63e3196c604d7",
+                    "label": "อังคาร",
+                    "name": "tuesday",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_63e318b8604d5"
+                },
+                {
+                    "key": "field_63e31995604d8",
+                    "label": "พุธ",
+                    "name": "wednesday",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_63e318b8604d5"
+                },
+                {
+                    "key": "field_63e319a1604d9",
+                    "label": "พฤหัสบดี",
+                    "name": "tuesday",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_63e318b8604d5"
+                },
+                {
+                    "key": "field_63e319bc604da",
+                    "label": "ศุกร์",
+                    "name": "friday",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_63e318b8604d5"
+                },
+                {
+                    "key": "field_649ad291c2b18",
+                    "label": "เสาร์",
+                    "name": "saturday",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_63e318b8604d5"
+                },
+                {
+                    "key": "field_649ad2b1c2b19",
+                    "label": "อาทิตย์",
+                    "name": "sunday",
+                    "aria-label": "",
+                    "type": "text",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "maxlength": "",
+                    "placeholder": "",
+                    "prepend": "",
+                    "append": "",
+                    "parent_repeater": "field_63e318b8604d5"
+                }
+            ]
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "doctor"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "",
+    "show_in_rest": 0,
+    "modified": 1688473895
+}
