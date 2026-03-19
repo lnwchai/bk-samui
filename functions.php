@@ -239,3 +239,90 @@ src="https://bangkokhospitalsamui.com/wp-content/themes/samui/js/webTrackingSdk.
 <?php
 }
 };
+
+
+add_action('gform_after_submission', 'redirect_to_easypay', 10, 2);
+
+function redirect_to_easypay($entry, $form) {
+
+    // ✅ FIX: format amount ให้ถูก
+    $amount = number_format((float) rgar($entry, '5'), 2, '.', '');
+
+    $name   = rgar($entry, '1');
+    $email  = rgar($entry, '3'); // ✅ FIX
+
+    // ✅ orderRef
+    $orderRef = 'ORD' . time();
+
+    // 🔧 config
+    $merchantId = "950606095";
+    $secretKey  = "B8cnaOBSJIypnUiq0OGjlRtJyY08NG8A";
+
+    $currCode = "764";
+    $payType  = "N";
+
+    // 🔐 hash
+    $hashString = $merchantId . "|" . $orderRef . "|" . $currCode . "|" . $amount . "|" . $payType . "|" . $secretKey;
+    $secureHash = hash('sha256', $hashString);
+
+    // 🔗 URLs
+    $successUrl = "https://bangkokhospitalsamui.com/en/successurl/?ref=".$orderRef;
+    $failUrl    = "https://bangkokhospitalsamui.com/en/failurl/";
+    $cancelUrl  = "https://bangkokhospitalsamui.com/en/cancelurl/";
+
+    // 🧪 DEBUG (เปิดทดสอบก่อน)
+    /*
+    echo "<pre>";
+    echo "amount: " . $amount . "\n";
+    echo "hashString: " . $hashString . "\n";
+    exit;
+    */
+
+    echo '<form id="easypay" method="post" action="https://uat.krungsrieasypay.com/BAY/eng/payment/payForm.jsp">
+
+        <input type="hidden" name="merchantId" value="'.$merchantId.'">
+        <input type="hidden" name="orderRef" value="'.$orderRef.'">
+        <input type="hidden" name="amount" value="'.$amount.'">
+        <input type="hidden" name="currCode" value="'.$currCode.'">
+        <input type="hidden" name="lang" value="E">
+
+        <input type="hidden" name="successUrl" value="'.$successUrl.'">
+        <input type="hidden" name="failUrl" value="'.$failUrl.'">
+        <input type="hidden" name="cancelUrl" value="'.$cancelUrl.'">
+
+        <input type="hidden" name="payType" value="'.$payType.'">
+        <input type="hidden" name="secureHash" value="'.$secureHash.'">
+
+    </form>
+
+    <script>document.getElementById("easypay").submit();</script>';
+
+    exit;
+}
+
+
+add_action('init', function () {
+
+    if (strpos($_SERVER['REQUEST_URI'], 'callback-fgurl') !== false) {
+
+        while (ob_get_level()) ob_end_clean();
+
+        header('Content-Type: text/plain');
+
+        // =========================
+        // 📥 รับค่าจากธนาคาร
+        // =========================
+        $successCode = $_POST['successcode'] ?? '';
+        $orderRef    = $_POST['Ref'] ?? '';
+
+        // 🔥 👉 ใส่ log ตรงนี้เลย
+        error_log("CALLBACK HIT: " . json_encode($_POST));
+
+        // =========================
+        // ✅ ตอบ bank
+        // =========================
+        echo "OK";
+        exit;
+    }
+
+});

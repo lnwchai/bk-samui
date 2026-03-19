@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template Name: TEST Form
+ * Template Name: TEST successurl
  */
 
 ?>
@@ -18,6 +18,8 @@
             }
             echo '<div class="page-content">';
             the_content();
+            $orderRef = $_GET['ref'] ?? '';
+            echo "<h2>Payment Processing...</h2>";
             edit_post_link('EDIT', '', '', null, 'btn-edit');
             echo '</div>';
         }
