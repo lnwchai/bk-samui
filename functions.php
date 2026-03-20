@@ -270,14 +270,8 @@ function redirect_to_easypay($entry, $form) {
     $failUrl    = "https://bangkokhospitalsamui.com/en/failurl/";
     $cancelUrl  = "https://bangkokhospitalsamui.com/en/cancelurl/";
 
-    // 🧪 DEBUG (เปิดทดสอบก่อน)
-    /*
-    echo "<pre>";
-    echo "amount: " . $amount . "\n";
-    echo "hashString: " . $hashString . "\n";
-    exit;
-    */
-
+    
+    
     echo '<form id="easypay" method="post" action="https://uat.krungsrieasypay.com/BAY/eng/payment/payForm.jsp">
 
         <input type="hidden" name="merchantId" value="'.$merchantId.'">
@@ -314,14 +308,6 @@ add_action('init', function () {
         // =========================
         $successCode = $_POST['successcode'] ?? '';
         $orderRef    = $_POST['Ref'] ?? '';
-
-        // 🔥 👉 ใส่ log ตรงนี้เลย
-        error_log("CALLBACK HIT: " . json_encode($_POST));
-
-        // =========================
-        // ✅ ตอบ bank
-        // =========================
-        echo "OK";
         exit;
     }
 
