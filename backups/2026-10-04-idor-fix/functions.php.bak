@@ -367,31 +367,10 @@ function samui_backfill_patient_tokens(): void {
 /**
  * Generate callback token for new payment_logs posts.
  */
-add_action('gform_advancedpostcreation_post_after_creation', 'samui_add_payment_log_tokens', 10, 4);
-function samui_add_payment_log_tokens(int $post_id, $feed, $entry, array $form): void {
+add_action('gform_advancedpostcreation_post_after_creation', 'samui_add_payment_log_callback_token', 10, 4);
+function samui_add_payment_log_callback_token(int $post_id, $feed, $entry, array $form): void {
     if (isset($feed['post_type']) && $feed['post_type'] === 'payment_logs') {
-        // Set entry_id from the actual GF entry ID (safety net for feed mapping issues)
-        $existing_entry_id = get_post_meta($post_id, 'entry_id', true);
-        if (!$existing_entry_id && isset($entry['id'])) {
-            update_post_meta($post_id, 'entry_id', (int) $entry['id']);
-        }
-        // Ensure payment_page is set correctly (safety net for feed mapping issues)
-        $existing_payment_page = get_post_meta($post_id, 'payment_page', true);
-        if (!$existing_payment_page || $existing_payment_page === '1') {
-            $pmp = isset($_GET['pmp']) ? intval($_GET['pmp']) : 2;
-            $payment_page = ($pmp == 1) ? 'e-payment-package' : 'e-payment';
-            update_post_meta($post_id, 'payment_page', $payment_page);
-        }
-        // Generate access_token if missing (needed for redirect from logid to token)
-        $existing_token = get_post_meta($post_id, 'access_token', true);
-        if (!$existing_token) {
-            update_post_meta($post_id, 'access_token', samui_generate_access_token());
-        }
-        // Generate callback_token if missing
-        $existing_callback = get_post_meta($post_id, 'callback_token', true);
-        if (!$existing_callback) {
-            update_post_meta($post_id, 'callback_token', samui_generate_access_token());
-        }
+        update_post_meta($post_id, 'callback_token', samui_generate_access_token());
     }
 }
 
@@ -464,7 +443,7 @@ function samui_payment_csp_header(): void {
         return;
     }
 
-    $nonce = base64_encode( random_bytes( 16 ) );
+    $nonce = base64_encode( wp_generate_password( 16, false ) );
     $GLOBALS['samui_payment_csp_nonce'] = $nonce;
     if ( ! headers_sent() ) {
         header( 'Content-Security-Policy: script-src \'nonce-' . $nonce . '\' \'unsafe-inline\' \'unsafe-eval\' https://cdn.datatables.net https://www.google.com https://www.gstatic.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://cdnjs.cloudflare.com https://app.connect-x.tech; style-src \'nonce-' . $nonce . '\' \'unsafe-inline\' https://fonts.googleapis.com https://cdn.jsdelivr.net https://app.connect-x.tech; font-src \'self\' https://fonts.gstatic.com data:; img-src \'self\' data: https:; connect-src \'self\' https://api.wordpress.org https://bangkokhospitalsamui.com https://tracking.connect-x.tech; frame-src \'self\' https://www.google.com https://www.gstatic.com; frame-ancestors \'none\'; base-uri \'self\'; form-action \'self\' https://www.krungsriepayment.com; worker-src \'self\' blob:' );

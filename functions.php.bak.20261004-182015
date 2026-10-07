@@ -84,12 +84,7 @@ function krusri_e_payment_bgurl_page_contents() {}
 function set_external_url_post_link( string $post_link, WP_Post $post ): string {
     if ( 'patient_information' === $post->post_type ) {
         $pid = $post->ID;
-        $access_token = get_post_meta( $pid, 'access_token', true );
-        if ( ! $access_token ) {
-            $access_token = samui_generate_patient_access_token();
-            update_post_meta( $pid, 'access_token', $access_token );
-        }
-        $external_url = home_url().'/patients-details?token='.$access_token;
+        $external_url  = home_url().'/patients-details?pid='.$pid;
         return $external_url;
     }
     return $post_link;
@@ -194,7 +189,7 @@ add_filter( 'gform_admin_pre_render', 'add_data_form_3' );
 add_filter( 'gform_pre_submission_filter', 'add_data_form_3' );
 function add_data_form_3( array $form ): array {
   
-    if ( $form['id'] != '3' ) {
+    if ( $form['id'] != 3 ) {
        return $form;
     }
 
@@ -224,14 +219,8 @@ function add_data_form_3( array $form ): array {
 
 add_action( 'gform_advancedpostcreation_post_after_creation', 'update_product_information', 10, 4 );
 function update_product_information( int $post_id, $feed, $entry, array $form ): void {
-    if ( '6' === (string) $form['id'] ) {
-        $access_token = get_post_meta( $post_id, 'access_token', true );
-        if ( ! $access_token ) {
-            $access_token = samui_generate_patient_access_token();
-            update_post_meta( $post_id, 'access_token', $access_token );
-        }
-        wp_redirect( '/patients-details/?token=' . $access_token );
-        exit;
+    if( $form['id'] == '6' ){
+        wp_redirect( '/patients-details/?pid='.$post_id );
     }
 }
 
@@ -252,17 +241,10 @@ src="https://bangkokhospitalsamui.com/wp-content/themes/samui/js/webTrackingSdk.
 };
 
 /**
- * Generate a secure access token.
+ * Generate a secure access token for payment logs.
  */
 function samui_generate_access_token(): string {
     return wp_generate_password(32, false);
-}
-
-/**
- * Generate a secure access token for patient_information posts.
- */
-function samui_generate_patient_access_token(): string {
-    return samui_generate_access_token();
 }
 
 /**
@@ -271,25 +253,6 @@ function samui_generate_patient_access_token(): string {
 function samui_get_payment_log_by_token(string $token): int {
     $posts = get_posts(array(
         'post_type' => 'payment_logs',
-        'posts_per_page' => 1,
-        'fields' => 'ids',
-        'meta_query' => array(
-            array(
-                'key' => 'access_token',
-                'value' => $token,
-            ),
-        ),
-    ));
-
-    return $posts ? (int) $posts[0] : 0;
-}
-
-/**
- * Get patient_information post ID by access token.
- */
-function samui_get_patient_by_token(string $token): int {
-    $posts = get_posts(array(
-        'post_type' => 'patient_information',
         'posts_per_page' => 1,
         'fields' => 'ids',
         'meta_query' => array(
@@ -338,146 +301,11 @@ function samui_backfill_payment_log_tokens(): void {
 }
 
 /**
- * Backfill access tokens for existing patient_information posts.
- */
-function samui_backfill_patient_tokens(): void {
-    $posts = get_posts(array(
-        'post_type' => 'patient_information',
-        'posts_per_page' => -1,
-        'fields' => 'ids',
-        'meta_query' => array(
-            'relation' => 'OR',
-            array(
-                'key' => 'access_token',
-                'compare' => 'NOT EXISTS',
-            ),
-            array(
-                'key' => 'access_token',
-                'value' => '',
-                'compare' => '=',
-            ),
-        ),
-    ));
-
-    foreach ($posts as $post_id) {
-        update_post_meta($post_id, 'access_token', samui_generate_patient_access_token());
-    }
-}
-
-/**
  * Generate callback token for new payment_logs posts.
  */
-add_action('gform_advancedpostcreation_post_after_creation', 'samui_add_payment_log_tokens', 10, 4);
-function samui_add_payment_log_tokens(int $post_id, $feed, $entry, array $form): void {
+add_action('gform_advancedpostcreation_post_after_creation', 'samui_add_payment_log_callback_token', 10, 4);
+function samui_add_payment_log_callback_token(int $post_id, $feed, $entry, array $form): void {
     if (isset($feed['post_type']) && $feed['post_type'] === 'payment_logs') {
-        // Set entry_id from the actual GF entry ID (safety net for feed mapping issues)
-        $existing_entry_id = get_post_meta($post_id, 'entry_id', true);
-        if (!$existing_entry_id && isset($entry['id'])) {
-            update_post_meta($post_id, 'entry_id', (int) $entry['id']);
-        }
-        // Ensure payment_page is set correctly (safety net for feed mapping issues)
-        $existing_payment_page = get_post_meta($post_id, 'payment_page', true);
-        if (!$existing_payment_page || $existing_payment_page === '1') {
-            $pmp = isset($_GET['pmp']) ? intval($_GET['pmp']) : 2;
-            $payment_page = ($pmp == 1) ? 'e-payment-package' : 'e-payment';
-            update_post_meta($post_id, 'payment_page', $payment_page);
-        }
-        // Generate access_token if missing (needed for redirect from logid to token)
-        $existing_token = get_post_meta($post_id, 'access_token', true);
-        if (!$existing_token) {
-            update_post_meta($post_id, 'access_token', samui_generate_access_token());
-        }
-        // Generate callback_token if missing
-        $existing_callback = get_post_meta($post_id, 'callback_token', true);
-        if (!$existing_callback) {
-            update_post_meta($post_id, 'callback_token', samui_generate_access_token());
-        }
+        update_post_meta($post_id, 'callback_token', samui_generate_access_token());
     }
-}
-
-/**
- * Add access_token to patient_information posts on creation via Gravity Forms.
- */
-add_action('gform_advancedpostcreation_post_after_creation', 'samui_add_patient_access_token', 9, 4);
-function samui_add_patient_access_token(int $post_id, $feed, $entry, array $form): void {
-    if (isset($feed['post_type']) && $feed['post_type'] === 'patient_information') {
-        update_post_meta($post_id, 'access_token', samui_generate_patient_access_token());
-    }
-}
-
-/**
- * Pre-fill E-Payment form 2 from patient_token query param.
- */
-add_filter('gform_pre_render_2', 'samui_prefill_form2_from_patient_token');
-add_filter('gform_pre_validation_2', 'samui_prefill_form2_from_patient_token');
-add_filter('gform_pre_submission_filter_2', 'samui_prefill_form2_from_patient_token');
-add_filter('gform_admin_pre_render_2', 'samui_prefill_form2_from_patient_token');
-function samui_prefill_form2_from_patient_token(array $form): array {
-    $patient_token = isset($_GET['patient_token']) ? sanitize_text_field($_GET['patient_token']) : '';
-    if ($patient_token === '') {
-        return $form;
-    }
-
-    $patient_id = samui_get_patient_by_token($patient_token);
-    if ($patient_id === 0) {
-        return $form;
-    }
-
-    $prefix = get_field('prefix', $patient_id);
-    $first_name = get_field('first_name', $patient_id);
-    $last_name = get_field('last_name', $patient_id);
-    $hn = get_field('hn', $patient_id);
-
-    foreach ($form['fields'] as &$field) {
-        if ($field->inputName === 'hn' && $hn !== '') {
-            $field->defaultValue = $hn;
-        } elseif ($field->inputName === 'prefix' && $prefix !== '') {
-            $field->defaultValue = $prefix;
-        } elseif ($field->inputName === 'fname' && $first_name !== '') {
-            $field->defaultValue = $first_name;
-        } elseif ($field->inputName === 'lname' && $last_name !== '') {
-            $field->defaultValue = $last_name;
-        }
-    }
-
-    return $form;
-}
-
-/**
- * Add nonce-based CSP header for payment-related pages.
- */
-add_action('template_redirect', 'samui_payment_csp_header');
-function samui_payment_csp_header(): void {
-        if ( ! is_singular() ) {
-                return;
-    }
-
-    $page_template = get_page_template_slug( get_queried_object_id() );
-    $allowed_templates = array(
-        'templates/payment-loading.php',
-        'templates/payment-callback.php',
-        'templates/patients-details.php',
-        'templates/print-payment.php',
-    );
-
-    if ( ! in_array( $page_template, $allowed_templates, true ) ) {
-        return;
-    }
-
-    $nonce = base64_encode( random_bytes( 16 ) );
-    $GLOBALS['samui_payment_csp_nonce'] = $nonce;
-    if ( ! headers_sent() ) {
-        header( 'Content-Security-Policy: script-src \'nonce-' . $nonce . '\' \'unsafe-inline\' \'unsafe-eval\' https://cdn.datatables.net https://www.google.com https://www.gstatic.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://cdnjs.cloudflare.com https://app.connect-x.tech; style-src \'nonce-' . $nonce . '\' \'unsafe-inline\' https://fonts.googleapis.com https://cdn.jsdelivr.net https://app.connect-x.tech; font-src \'self\' https://fonts.gstatic.com data:; img-src \'self\' data: https:; connect-src \'self\' https://api.wordpress.org https://bangkokhospitalsamui.com https://tracking.connect-x.tech; frame-src \'self\' https://www.google.com https://www.gstatic.com; frame-ancestors \'none\'; base-uri \'self\'; form-action \'self\' https://www.krungsriepayment.com; worker-src \'self\' blob:' );
-    }
-}
-
-
-add_action('init', 'samui_maybe_backfill_tokens');
-function samui_maybe_backfill_tokens(): void {
-    if ( get_transient( 'samui_tokens_backfilled' ) ) {
-        return;
-    }
-    samui_backfill_payment_log_tokens();
-    samui_backfill_patient_tokens();
-    set_transient( 'samui_tokens_backfilled', '1', DAY_IN_SECONDS );
 }
