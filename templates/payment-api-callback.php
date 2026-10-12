@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template Name: TEST CallBack
+ * Template Name: API CallBack
  */
 
 ?>
@@ -24,8 +24,8 @@ add_action('init', function () {
         $currCode    = $_POST['cur'] ?? '';
 
         // 🔐 verify hash
-        $merchantId = "950606095";
-        $secretKey  = "B8cnaOBSJIypnUiq0OGjlRtJyY08NG8A";
+        $merchantId = "950221114";
+        $secretKey  = "Y0e8NseS4N7oMDDt6SNijUXZnCVXwBI5";
         $payType    = "N";
 
         $receivedHash = $_POST['secureHash'] ?? '';

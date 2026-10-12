@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Template Name: TEST successurl
+ * Template Name: API successurl
  */
 
 ?>
