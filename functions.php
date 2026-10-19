@@ -467,7 +467,7 @@ function samui_payment_csp_header(): void {
     $nonce = base64_encode( random_bytes( 16 ) );
     $GLOBALS['samui_payment_csp_nonce'] = $nonce;
     if ( ! headers_sent() ) {
-        header( 'Content-Security-Policy: script-src \'nonce-' . $nonce . '\' \'unsafe-inline\' \'unsafe-eval\' https://cdn.datatables.net https://www.google.com https://www.gstatic.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://cdnjs.cloudflare.com https://app.connect-x.tech; style-src \'nonce-' . $nonce . '\' \'unsafe-inline\' https://fonts.googleapis.com https://cdn.jsdelivr.net https://app.connect-x.tech; font-src \'self\' https://fonts.gstatic.com data:; img-src \'self\' data: https:; connect-src \'self\' https://api.wordpress.org https://bangkokhospitalsamui.com https://tracking.connect-x.tech; frame-src \'self\' https://www.google.com https://www.gstatic.com; frame-ancestors \'none\'; base-uri \'self\'; form-action \'self\' https://www.krungsriepayment.com; worker-src \'self\' blob:' );
+        header( 'Content-Security-Policy: script-src \'nonce-' . $nonce . '\' \'unsafe-inline\' \'unsafe-eval\' https://cdn.datatables.net https://www.google.com https://www.gstatic.com https://cdn.jsdelivr.net https://www.googletagmanager.com https://cdnjs.cloudflare.com https://app.connect-x.tech; style-src \'nonce-' . $nonce . '\' \'unsafe-inline\' https://fonts.googleapis.com https://cdn.jsdelivr.net https://app.connect-x.tech; font-src \'self\' https://fonts.gstatic.com data:; img-src \'self\' data: https:; connect-src \'self\' https://api.wordpress.org https://bangkokhospitalsamui.com https://tracking.connect-x.tech; frame-src \'self\' https://www.google.com https://www.gstatic.com; frame-ancestors \'none\'; base-uri \'self\'; form-action \'self\' https://www.krungsrieasypay.com; worker-src \'self\' blob:' );
     }
 }
 
@@ -480,4 +480,56 @@ function samui_maybe_backfill_tokens(): void {
     samui_backfill_payment_log_tokens();
     samui_backfill_patient_tokens();
     set_transient( 'samui_tokens_backfilled', '1', DAY_IN_SECONDS );
+}
+
+
+add_action('gform_after_submission', 'redirect_to_easypay', 10, 2);
+
+function redirect_to_easypay($entry, $form) {
+
+    // 🔹 mapping field ID (แก้ตาม form คุณ)
+    $amount = rgar($entry, '34'); // field amount
+    $name   = rgar($entry, '9');
+    $email  = rgar($entry, '6');
+
+    // 🔹 generate orderRef (สำคัญ: unique)
+    $orderRef = 'ORD' . time();
+
+    // 🔹 config
+    $merchantId = "950221114";
+    $secretKey  = "Y0e8NseS4N7oMDDt6SNijUXZnCVXwBI5";
+
+    $currCode = "764";
+    $payType  = "N";
+
+    // 🔐 generate hash
+    $hashString = $merchantId . "|" . $orderRef . "|" . $currCode . "|" . $amount . "|" . $payType . "|" . $secretKey;
+    $secureHash = hash('sha256', $hashString);
+
+    // 🔗 URLs ของคุณ
+    $successUrl = "https://bangkokhospitalsamui.com/en/successurl/?ref=".$orderRef;
+    $failUrl    = "https://bangkokhospitalsamui.com/en/failurl/";
+    $cancelUrl  = "https://bangkokhospitalsamui.com/en/cancelurl/";
+
+    // 🔁 redirect ไป EASYPay
+    echo '<form id="easypay" method="post" action="https://www.krungsrieasypay.com/BAY/eng/payment/payForm.jsp">
+
+        <input type="hidden" name="merchantId" value="'.$merchantId.'">
+        <input type="hidden" name="orderRef" value="'.$orderRef.'">
+        <input type="hidden" name="amount" value="'.$amount.'">
+        <input type="hidden" name="currCode" value="'.$currCode.'">
+        <input type="hidden" name="lang" value="E">
+
+        <input type="hidden" name="successUrl" value="'.$successUrl.'">
+        <input type="hidden" name="failUrl" value="'.$failUrl.'">
+        <input type="hidden" name="cancelUrl" value="'.$cancelUrl.'">
+
+        <input type="hidden" name="payType" value="'.$payType.'">
+        <input type="hidden" name="secureHash" value="'.$secureHash.'">
+
+    </form>
+
+    <script>document.getElementById("easypay").submit();</script>';
+
+    exit;
 }
