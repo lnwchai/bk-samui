@@ -720,3 +720,107 @@ body.page {
 #colophon #s-chat-panel.active {
   max-height: 555px;
 }
+
+
+/* Krungsri EASYPay - Processing */
+.page-content .easypay-processing {
+  max-width: 680px;
+  margin: 40px auto;
+  padding: 32px 24px;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  background: #fff;
+  text-align: center;
+}
+
+.easypay-processing__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 20px;
+  border: 2px solid #17365d;
+  border-radius: 50%;
+}
+
+.easypay-processing__spinner {
+  width: 26px;
+  height: 26px;
+  border: 3px solid #e5e5e5;
+  border-top-color: #17365d;
+  border-radius: 50%;
+  animation: easypay-processing-spin .9s linear infinite;
+}
+
+.page-content .easypay-processing h2 {
+  margin: 0 0 16px;
+  font-size: 26px;
+  line-height: 1.4;
+}
+
+.easypay-processing > p {
+  line-height: 1.8;
+}
+
+.easypay-processing__reference {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 24px 0;
+  padding: 14px 16px;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.easypay-processing__reference strong {
+  overflow-wrap: anywhere;
+}
+
+.easypay-processing__notice {
+  padding: 14px 16px;
+  border: 1px solid #e8d7ad;
+  border-radius: 6px;
+  background: #fffaf0;
+  color: #72551d;
+  font-size: 14px;
+  text-align: left;
+}
+
+@keyframes easypay-processing-spin {
+  to {
+      transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 600px) {
+  .page-content .easypay-processing {
+      margin: 24px auto;
+      padding: 26px 18px;
+  }
+
+  .page-content .easypay-processing h2 {
+      font-size: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .easypay-processing__spinner {
+      animation: none;
+  }
+}
+
+
+button#gform_submit_button_1, button#gform_submit_button_2 {
+    background: linear-gradient(244deg, rgb(212, 0, 4) 40%, rgb(150, 1, 11) 110%) 0px center / 200% auto;
+    transition: background-position 0.4s;
+    margin: 0 auto;
+    padding: 12px 40px;
+    border-radius: 99px;
+    color: #fff;
+    font-size: 20px;
+    border: navajowhite;
+}

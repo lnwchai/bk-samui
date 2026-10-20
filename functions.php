@@ -486,11 +486,42 @@ function samui_maybe_backfill_tokens(): void {
 add_action('gform_after_submission', 'redirect_to_easypay', 10, 2);
 
 function redirect_to_easypay($entry, $form) {
+    
 
-    // 🔹 mapping field ID (แก้ตาม form คุณ)
-    $amount = rgar($entry, '34'); // field amount
-    $name   = rgar($entry, '9');
-    $email  = rgar($entry, '6');
+   
+$formId = (int) rgar($form, 'id');
+
+
+if ($formId === 2) {
+    // Gravity Forms ID 2
+    $amount      = rgar($entry, '34');
+    $name        = rgar($entry, '9');
+    $email       = rgar($entry, '6');
+    $productName = rgar($entry, '24');
+
+} elseif ($formId === 1) {
+    // Gravity Forms ID 1
+    $amount      = rgar($entry, '16');
+    $name        = rgar($entry, '6');
+    $email       = rgar($entry, '9');
+    $productName = rgar($entry, '15');
+
+} else {
+    return;
+}
+
+// Normalize amount: support 2,500 and 2500
+$amount = trim((string) $amount);
+$amount = str_replace(',', '', $amount);
+
+// Validate amount
+if (
+    $amount === '' ||
+    !is_numeric($amount) ||
+    (float) $amount <= 0
+) {
+    wp_die('Invalid payment amount. Please contact the hospital.');
+}
 
     // 🔹 generate orderRef (สำคัญ: unique)
     $orderRef = 'ORD' . time();
@@ -518,6 +549,7 @@ function redirect_to_easypay($entry, $form) {
         <input type="hidden" name="orderRef" value="'.$orderRef.'">
         <input type="hidden" name="amount" value="'.$amount.'">
         <input type="hidden" name="currCode" value="'.$currCode.'">
+        <input type="hidden" name="remark" value="'.esc_attr($productName).'">
         <input type="hidden" name="lang" value="E">
 
         <input type="hidden" name="successUrl" value="'.$successUrl.'">
@@ -533,3 +565,214 @@ function redirect_to_easypay($entry, $form) {
 
     exit;
 }
+
+/**
+ * Krungsri EASYPay result pages
+ * Shortcode: [easypay_result]
+ *
+ * These pages display the payment return state only.
+ * They do NOT confirm that a payment has been settled.
+ */
+
+ add_shortcode('easypay_result', 'samui_easypay_result_shortcode');
+
+ function samui_easypay_result_shortcode() {
+     $page_slug = get_post_field('post_name', get_queried_object_id());
+ 
+     $states = array(
+         'successurl' => array(
+             'title'   => 'Payment Received',
+             'message' => 'Thank you. We have received your return from the payment page and are checking your transaction.',
+             'status'  => 'Verification in progress',
+             'class'   => 'pending',
+         ),
+         'cancelurl' => array(
+             'title'   => 'Payment Cancelled',
+             'message' => 'Your payment process was cancelled. If you did not intend to cancel, you may return and try again.',
+             'status'  => 'Cancelled by user',
+             'class'   => 'cancelled',
+         ),
+         'failurl' => array(
+             'title'   => 'Payment Unsuccessful',
+             'message' => 'We could not confirm a successful payment from this return. Please check with your bank before attempting another payment.',
+             'status'  => 'Not confirmed',
+             'class'   => 'failed',
+         ),
+     );
+ 
+     if (!isset($states[$page_slug])) {
+         return '<p>Payment result page not found.</p>';
+     }
+ 
+     $state = $states[$page_slug];
+ 
+     $reference = isset($_GET['ref']) && is_string($_GET['ref'])
+         ? sanitize_text_field(wp_unslash($_GET['ref']))
+         : '';
+ 
+     ob_start();
+     ?>
+     <section class="samui-payment-result">
+         <div class="samui-payment-card">
+             <div class="samui-payment-mark <?php echo esc_attr($state['class']); ?>">
+                 <?php
+                 if ($state['class'] === 'pending') {
+                     echo esc_html('…');
+                 } elseif ($state['class'] === 'cancelled') {
+                     echo esc_html('–');
+                 } else {
+                     echo esc_html('!');
+                 }
+                 ?>
+             </div>
+ 
+             <p class="samui-payment-eyebrow">ONLINE PAYMENT</p>
+ 
+             <h1><?php echo esc_html($state['title']); ?></h1>
+ 
+             <p class="samui-payment-message">
+                 <?php echo esc_html($state['message']); ?>
+             </p>
+ 
+             <div class="samui-payment-status">
+                 <span>Current status</span>
+                 <strong><?php echo esc_html($state['status']); ?></strong>
+             </div>
+ 
+             <?php if ($reference !== '') : ?>
+                 <div class="samui-payment-reference">
+                     <span>Reference number</span>
+                     <strong><?php echo esc_html($reference); ?></strong>
+                 </div>
+             <?php endif; ?>
+ 
+             <p class="samui-payment-note">
+                 Please keep your payment reference for your records.
+                 If the amount has been charged to your card, please contact
+                 the hospital before making another payment.
+             </p>
+ 
+             <a class="samui-payment-button"
+                href="<?php echo esc_url(home_url('/')); ?>">
+                 Return to Website
+             </a>
+ 
+             <p class="samui-payment-support">
+                 Need assistance? Please contact the hospital's payment team.
+             </p>
+         </div>
+     </section>
+ 
+     <style>
+         .samui-payment-result {
+             box-sizing: border-box;
+             padding: 48px 20px;
+             background: #f5f7fa;
+             color: #253449;
+             font-family: inherit;
+         }
+         .samui-payment-card {
+             box-sizing: border-box;
+             max-width: 640px;
+             margin: 0 auto;
+             padding: 44px 38px;
+             background: #fff;
+             border: 1px solid #e4e9ef;
+             border-radius: 14px;
+             text-align: center;
+             box-shadow: 0 8px 30px rgba(24, 45, 70, .06);
+         }
+         .samui-payment-mark {
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             width: 58px;
+             height: 58px;
+             margin: 0 auto 22px;
+             border: 2px solid currentColor;
+             border-radius: 50%;
+             font-size: 30px;
+             font-weight: 600;
+         }
+         .samui-payment-mark.pending { color: #9a6b13; }
+         .samui-payment-mark.cancelled { color: #64748b; }
+         .samui-payment-mark.failed { color: #b42318; }
+         .samui-payment-eyebrow {
+             margin: 0 0 10px;
+             color: #64748b;
+             font-size: 12px;
+             font-weight: 700;
+             letter-spacing: 2px;
+         }
+         .samui-payment-card h1 {
+             margin: 0 0 16px;
+             color: #17365d;
+             font-size: clamp(26px, 4vw, 34px);
+             line-height: 1.25;
+         }
+         .samui-payment-message {
+             margin: 0 auto 26px;
+             max-width: 490px;
+             color: #526174;
+             font-size: 16px;
+             line-height: 1.75;
+         }
+         .samui-payment-status,
+         .samui-payment-reference {
+             display: flex;
+             flex-wrap: wrap;
+             justify-content: space-between;
+             gap: 10px;
+             padding: 15px 0;
+             border-top: 1px solid #e8edf2;
+             text-align: left;
+             font-size: 14px;
+         }
+         .samui-payment-status span,
+         .samui-payment-reference span {
+             color: #64748b;
+         }
+         .samui-payment-status strong,
+         .samui-payment-reference strong {
+             overflow-wrap: anywhere;
+             color: #253449;
+         }
+         .samui-payment-note {
+             margin: 22px 0;
+             padding: 14px 16px;
+             background: #f7f9fc;
+             border-radius: 8px;
+             color: #526174;
+             font-size: 13px;
+             line-height: 1.7;
+             text-align: left;
+         }
+         .samui-payment-button {
+             display: inline-block;
+             padding: 13px 24px;
+             background: #17365d;
+             border-radius: 7px;
+             color: #fff !important;
+             font-size: 15px;
+             font-weight: 600;
+             text-decoration: none !important;
+         }
+         .samui-payment-button:hover {
+             background: #244c7b;
+         }
+         .samui-payment-support {
+             margin: 22px 0 0;
+             color: #64748b;
+             font-size: 13px;
+             line-height: 1.6;
+         }
+         @media (max-width: 480px) {
+             .samui-payment-result { padding: 24px 12px; }
+             .samui-payment-card { padding: 30px 20px; }
+         }
+     </style>
+     <?php
+ 
+     return ob_get_clean();
+ }
+ 
