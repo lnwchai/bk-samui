@@ -454,10 +454,8 @@ function samui_payment_csp_header(): void {
 
     $page_template = get_page_template_slug( get_queried_object_id() );
     $allowed_templates = array(
-        'templates/payment-loading.php',
         'templates/payment-callback.php',
-        'templates/patients-details.php',
-        'templates/print-payment.php',
+        'templates/payment-api-successurl.php',
     );
 
     if ( ! in_array( $page_template, $allowed_templates, true ) ) {
